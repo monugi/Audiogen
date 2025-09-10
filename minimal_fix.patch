@@ -1,0 +1,28 @@
+--- a/src/App.jsx
++++ b/src/App.jsx
+@@ -250,7 +250,11 @@ function App() {
+         u.rate = Math.max(0.6, Math.min(1.2, rate));
+         u.pitch = Math.max(0.8, Math.min(1.2, pitch));
+         u.volume = Math.max(0.7, Math.min(1, volume));
+-        if (preferred) u.voice = preferred;
++        if (preferred) {
++          u.voice = preferred;
++        } else if (voicesList && voicesList.length > 0) {
++          u.voice = voicesList[0];
++        }
+         u.lang = isHindi ? 'hi-IN' : (preferred && preferred.lang) ? preferred.lang : 'en-US';
+         return u;
+       };
+@@ -290,7 +294,11 @@ function App() {
+           utter.rate = rate;
+           utter.pitch = pitch;
+           utter.volume = volume;
+-          if (bestVoice && bestVoice.voice) utter.voice = bestVoice.voice;
++          if (bestVoice && bestVoice.voice) {
++            utter.voice = bestVoice.voice;
++          } else if (voicesList && voicesList.length > 0) {
++            utter.voice = voicesList[0];
++          }
+           utter.onend = () => { i += 1; setTimeout(next, 120); };
+           utter.onerror = () => { i += 1; setTimeout(next, 120); };
+           speechSynthesis.speak(utter);

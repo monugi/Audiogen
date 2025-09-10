@@ -1,0 +1,113 @@
+--- a/src/App.jsx
++++ b/src/App.jsx
+@@ -240,6 +240,25 @@ function App() {
+     return 'en-US';
+   };
+ 
++  // FIXED: Better voice selection logic
++  const getSelectedVoice = () => {
++    if (!voiceName) return null;
++    
++    // First try to find in system voices
++    const systemVoice = systemVoices.find(v => v.name === voiceName);
++    if (systemVoice) {
++      return {
++        name: systemVoice.name,
++        value: systemVoice.name,
++        language: systemVoice.lang,
++        voice: systemVoice,
++        isSystem: true
++      };
++    }
++    
++    // Fallback to first system voice
++    if (systemVoices.length > 0) {
++      return {
++        name: systemVoices[0].name,
++        value: systemVoices[0].name,
++        language: systemVoices[0].lang,
++        voice: systemVoices[0],
++        isSystem: true
++      };
++    }
++    
++    return null;
++  };
++
+   const getBestVoiceForText = (text, selectedVoiceName) => {
+     const detectedLang = detectLanguage(text);
+     const voices = filteredVoices.length ? filteredVoices : availableVoices;
+@@ -255,6 +274,7 @@ function App() {
+     return bestVoice || voices[0];
+   };
+ 
++  // FIXED: Improved preview function
+   const previewVoice = async (voiceName) => {
+     if (!voiceName || !('speechSynthesis' in window)) return;
+     
+@@ -262,12 +282,15 @@ function App() {
+     const previewText = "Hello! This is a preview of how I sound. I hope you like my voice!";
+     
+     try {
++      // Cancel any ongoing speech
++      window.speechSynthesis.cancel();
++      
+       const utterance = new SpeechSynthesisUtterance(previewText);
+       
+-      // Find the voice object
+-      const voice = availableVoices.find(v => v.value === voiceName);
+-      if (voice && voice.voice) {
+-        utterance.voice = voice.voice;
++      // Find the specific voice
++      const systemVoice = systemVoices.find(v => v.name === voiceName);
++      if (systemVoice) {
++        utterance.voice = systemVoice;
++        utterance.lang = systemVoice.lang;
+       }
+       
+       utterance.rate = rate;
+       utterance.pitch = pitch;
+       utterance.volume = volume;
+-      utterance.lang = voice?.language || 'en-US';
+       
+       utterance.onend = () => setIsPreviewing(false);
+       utterance.onerror = () => setIsPreviewing(false);
+@@ -320,6 +343,9 @@ function App() {
+       // Cancel any ongoing speech
+       window.speechSynthesis.cancel();
+       queueRef.current = [];
++
++      // Get the selected voice
++      const selectedVoice = getSelectedVoice();
++      console.log('Selected voice:', selectedVoice);
+ 
+       // Split text into manageable sentences for better prosody
+       const sentences = text
+@@ -327,15 +353,12 @@ function App() {
+         .split(/(?<=[.!?\u0964\u0965])\s+/)
+         .filter((s) => s && s.trim().length > 0);
+ 
+-      const voices = window.speechSynthesis.getVoices();
+-      const voicesList = (systemVoices && systemVoices.length) ? systemVoices : voices;
+-
+       const makeUtter = (s) => {
+-        const bestVoice = getBestVoiceForText(s, voiceName);
+         const u = new SpeechSynthesisUtterance(s);
+         u.rate = Math.max(0.6, Math.min(1.2, rate));
+         u.pitch = Math.max(0.8, Math.min(1.2, pitch));
+         u.volume = Math.max(0.7, Math.min(1, volume));
+         
+-        // Use system voice if available
+-        if (bestVoice && bestVoice.voice) {
+-          u.voice = bestVoice.voice;
++        // Use the selected voice
++        if (selectedVoice && selectedVoice.voice) {
++          u.voice = selectedVoice.voice;
++          u.lang = selectedVoice.language;
+         } else {
+-          u.lang = bestVoice?.language || detectLanguage(s);
++          // Fallback to default
++          u.lang = detectLanguage(s);
+         }
+         
+         return u;
