@@ -1,37 +1,6 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import {
-  Volume2,
-  VolumeX,
-  Play,
-  Pause,
-  Square,
-  Download,
-  Settings,
-  Mic,
-  Waveform,
-  Sparkles,
-  Globe,
-  User,
-  Users,
-  Star,
-  Crown,
-  Heart,
-  Zap,
-  Music,
-  Headphones,
-  Radio,
-  Speaker,
-  X,
-  ChevronDown,
-  Filter,
-  Search,
-  RefreshCw,
-  Check,
-  AlertCircle,
-  Info,
-  Loader2
-} from 'lucide-react';
+import { Volume2, VolumeX, Play, Pause, Square, Download, Settings, Mic, AudioWaveform as Waveform, Sparkles, Globe, User, Users, Star, Crown, Heart, Zap, Music, Headphones, Radio, Speaker, X, ChevronDown, Filter, Search, RefreshCw, Check, AlertCircle, Info, Loader2 } from 'lucide-react';
 import './App.css';
 
 // Enhanced voice database with real human-like voices
